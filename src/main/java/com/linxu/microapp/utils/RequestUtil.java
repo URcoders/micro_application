@@ -21,8 +21,9 @@ public class RequestUtil {
     private static final String GRANT_TYPE = "grant_type=authorization_code";
 
     /**
+     *
      * @param code from website
-     * @return a string which contains openid、session_key,even unionid
+     * @return a string obj  which contains openid、session_key,even unionid
      */
     public String code2Session(@NotNull String code) {
         String url = BASE_URL + APP_ID + SECRET + JS_CODE + code + GRANT_TYPE;
