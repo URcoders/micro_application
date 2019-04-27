@@ -18,5 +18,7 @@ public interface UserService {
 
     ResponseData commitProgram(int userId,String programData);
 
+    String flushProgramData(String robotNumber);
+
 
 }

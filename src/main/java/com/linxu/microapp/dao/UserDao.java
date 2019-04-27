@@ -39,5 +39,7 @@ public interface UserDao {
 
     @Select("select robot_id from user_robot where user_id=#{id}")
     int queryRobotIdByUserId(@Param("id") int id);
-
+    /*******************************user_behaviors**********************/
+    @Insert("INSERT INTO user_behaviors (user_id,behaviors_id) VALUES(#{user_id},#{b_id})")
+    int relateUserAndProgramBehaviors(@Param("user_id")int userId,@Param("b_id")int behaviorsId);
 }

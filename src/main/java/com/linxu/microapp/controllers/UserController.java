@@ -68,4 +68,9 @@ public class UserController {
         }
         return userService.commitProgram(requestData.getId(), data);
     }
+
+    @GetMapping("/flush")
+    public String flushProgramData(@RequestParam("robotNumber") String robotNumber) {
+        return userService.flushProgramData(robotNumber);
+    }
 }

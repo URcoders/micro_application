@@ -1,7 +1,11 @@
 package com.linxu.microapp.service.impl;
 
+import com.aliyun.oss.ClientException;
+import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.OSSException;
 import com.linxu.microapp.core.OSConfig;
 import com.linxu.microapp.core.OSUtil;
+import com.linxu.microapp.dao.BehaviorsDao;
 import com.linxu.microapp.dao.RobotDao;
 import com.linxu.microapp.dao.UserDao;
 import com.linxu.microapp.dtos.ResponseData;
@@ -9,6 +13,7 @@ import com.linxu.microapp.dtos.WrapData;
 import com.linxu.microapp.enums.Code;
 import com.linxu.microapp.enums.Message;
 import com.linxu.microapp.exceptions.DaoException;
+import com.linxu.microapp.models.Behaviors;
 import com.linxu.microapp.models.Robot;
 import com.linxu.microapp.models.User;
 import com.linxu.microapp.service.UserService;
@@ -36,6 +41,8 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
     @Resource
     private RobotDao robotDao;
+    @Resource
+    private BehaviorsDao behaviorsDao;
 
     @Override
     public ResponseData login(User user) {
@@ -177,17 +184,69 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseData commitProgram(int userId, String programData) {
         File file = new File("./" + userId + "-temp.py");
+        int robotIdIfExist;
         try {
-            FileUtils.writeStringToFile(file, programData);
-            OSUtil.upload(file, OSConfig.defaultBucketName, OSConfig.openClient(), userId + "-" + FileUtil.getUuid());
-            //TODO program data storage
-        } catch (IOException e) {
-            e.printStackTrace();
+            robotIdIfExist = userDao.queryRobotIdByUserId(userId);
+        } catch (Exception e) {
+            //由于不存在
+            robotIdIfExist = 0;
         }
-        return new ResponseData.Builder()
-                .setCode(Code.OK.getCode())
-                .setData(null)
-                .setMsg(Message.OPERATION_SUCCESS.getMessage())
-                .build();
+        Robot robot;
+        if (robotIdIfExist != 0) {
+            //已经存在关联的机器人
+            robot = robotDao.queryRobotById(robotIdIfExist);
+            try {
+                FileUtils.writeStringToFile(file, programData);
+                //采用机器人编号+.py构成编程文件
+                OSUtil.upload(file, OSConfig.defaultBucketName, OSConfig.openClient(), robot.getRobotNumber());
+                //存储编程数据
+                Behaviors behaviors = new Behaviors();
+                behaviors.setBehaviors(programData);
+                //会返回ID
+                behaviorsDao.addBehaviors(behaviors);
+                userDao.relateUserAndProgramBehaviors(userId, behaviors.getId());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return new ResponseData.Builder()
+                    .setCode(Code.OK.getCode())
+                    .setData(null)
+                    .setMsg(Message.PROGRAM_SUCCESS.getMessage())
+                    .build();
+        } else {
+            //不存在机器人
+            return new ResponseData.Builder()
+                    .setCode(Code.OK.getCode())
+                    .setData(null)
+                    .setMsg(Message.ROBOT_IS_NOT_EXIST.getMessage())
+                    .build();
+
+        }
+    }
+
+    //响应嵌入式
+    @Override
+    public String flushProgramData(String robotNumber) {
+        if (robotNumber == null) {
+            return "robot number is null , please check your number from setting.";
+        }
+        Robot robot = robotDao.queryRobotByNumber(robotNumber);
+        if (robot != null) {
+            OSSClient client = null;
+            try {
+                client = OSConfig.openClient();
+                //删除
+                client.deleteObject(OSConfig.defaultBucketName, robotNumber + ".py");
+            } catch (OSSException e) {
+                e.printStackTrace();
+            } catch (ClientException e) {
+                e.printStackTrace();
+            } finally {
+                if (client != null)
+                    client.shutdown();
+            }
+            return "flush data successfully!";
+        }
+        return "robot number is not true!";
     }
 }

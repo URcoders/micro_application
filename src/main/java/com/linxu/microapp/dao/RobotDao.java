@@ -19,9 +19,23 @@ public interface RobotDao {
     void addRobot(@Param("robot") Robot robot) throws SQLException;
 
     @Select("SELECT * FROM robot WHERE robot_no = #{no}")
+    @Results(
+            {
+                    @Result(property = "id",column = "robot_id"),
+                    @Result(property = "robotNumber",column = "robot_no"),
+                    @Result(property = "robotType",column = "robot_type")
+            }
+    )
     Robot queryRobotByNumber(@Param("no") String robotNumber);
 
-    @Select("SELECT * FROM robot WHERE id = #{id}")
+    @Select("SELECT * FROM robot WHERE robot_id = #{id}")
+    @Results(
+            {
+                    @Result(property = "id",column = "robot_id"),
+                    @Result(property = "robotNumber",column = "robot_no"),
+                    @Result(property = "robotType",column = "robot_type")
+            }
+    )
     Robot queryRobotById(@Param("id") int id);
 
     @Update("update robot set robot_type=#{r.robotType},robot_no=#{r.robotNumber} where robot_id=#{rid}")
