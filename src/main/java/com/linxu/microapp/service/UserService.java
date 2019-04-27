@@ -16,5 +16,7 @@ public interface UserService {
 
     ResponseData relateUserAndRobot(int userId, String robotNumber, String robotType) ;
 
+    ResponseData commitProgram(int userId,String programData);
+
 
 }

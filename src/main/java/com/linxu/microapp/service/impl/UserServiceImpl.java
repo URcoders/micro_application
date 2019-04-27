@@ -1,5 +1,7 @@
 package com.linxu.microapp.service.impl;
 
+import com.linxu.microapp.core.OSConfig;
+import com.linxu.microapp.core.OSUtil;
 import com.linxu.microapp.dao.RobotDao;
 import com.linxu.microapp.dao.UserDao;
 import com.linxu.microapp.dtos.ResponseData;
@@ -10,6 +12,8 @@ import com.linxu.microapp.exceptions.DaoException;
 import com.linxu.microapp.models.Robot;
 import com.linxu.microapp.models.User;
 import com.linxu.microapp.service.UserService;
+import com.linxu.microapp.utils.FileUtil;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -17,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 
 /**
@@ -133,7 +139,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(rollbackFor = {Exception.class,SQLException.class,DaoException.class})
+    @Transactional(rollbackFor = {Exception.class, SQLException.class, DaoException.class})
     public ResponseData relateUserAndRobot(int userId, String robotNumber, String robotType) {
         ResponseData data;
         WrapData wrapData = new WrapData();
@@ -150,7 +156,7 @@ public class UserServiceImpl implements UserService {
             }
             if (robotIdIfExist != 0) {
                 //原本存在，即更新
-                robotDao.updateRobot(robot,robotIdIfExist);
+                robotDao.updateRobot(robot, robotIdIfExist);
             } else {
                 //不存在则添加
                 robotDao.addRobot(robot);
@@ -166,5 +172,22 @@ public class UserServiceImpl implements UserService {
                 .setData(wrapData)
                 .build();
         return data;
+    }
+
+    @Override
+    public ResponseData commitProgram(int userId, String programData) {
+        File file = new File("./" + userId + "-temp.py");
+        try {
+            FileUtils.writeStringToFile(file, programData);
+            OSUtil.upload(file, OSConfig.defaultBucketName, OSConfig.openClient(), userId + "-" + FileUtil.getUuid());
+            //TODO program data storage
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseData.Builder()
+                .setCode(Code.OK.getCode())
+                .setData(null)
+                .setMsg(Message.OPERATION_SUCCESS.getMessage())
+                .build();
     }
 }
