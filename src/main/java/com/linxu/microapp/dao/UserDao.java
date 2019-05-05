@@ -1,10 +1,12 @@
 package com.linxu.microapp.dao;
 
+import com.linxu.microapp.models.Advice;
 import com.linxu.microapp.models.User;
 import org.apache.ibatis.annotations.*;
 
 
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author linxu
@@ -42,4 +44,8 @@ public interface UserDao {
     /*******************************user_behaviors**********************/
     @Insert("INSERT INTO user_behaviors (user_id,behaviors_id) VALUES(#{user_id},#{b_id})")
     int relateUserAndProgramBehaviors(@Param("user_id")int userId,@Param("b_id")int behaviorsId);
+    /******************user_advice****************************/
+    @Select("SELECT * FROM pro_advice WHERE id= (SELECT advice_id FROM user_advice WHERE user_id=#{uid});")
+    List<Advice> queryAdviceByUserId(@Param("uid") int userId);
+
 }

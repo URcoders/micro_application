@@ -13,6 +13,7 @@ import com.linxu.microapp.dtos.WrapData;
 import com.linxu.microapp.enums.Code;
 import com.linxu.microapp.enums.Message;
 import com.linxu.microapp.exceptions.DaoException;
+import com.linxu.microapp.models.Advice;
 import com.linxu.microapp.models.Behaviors;
 import com.linxu.microapp.models.Robot;
 import com.linxu.microapp.models.User;
@@ -29,6 +30,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author linxu
@@ -182,7 +184,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseData commitProgram(int userId, String programData) {
+    public ResponseData commitProgram(int userId, String programData, String moduleDataStorage) {
         File file = new File("./" + userId + "-temp.py");
         int robotIdIfExist;
         try {
@@ -201,7 +203,7 @@ public class UserServiceImpl implements UserService {
                 OSUtil.upload(file, OSConfig.defaultBucketName, OSConfig.openClient(), robot.getRobotNumber());
                 //存储编程数据
                 Behaviors behaviors = new Behaviors();
-                behaviors.setBehaviors(programData);
+                behaviors.setBehaviors(moduleDataStorage);
                 //会返回ID
                 behaviorsDao.addBehaviors(behaviors);
                 userDao.relateUserAndProgramBehaviors(userId, behaviors.getId());
@@ -248,5 +250,35 @@ public class UserServiceImpl implements UserService {
             return "flush data successfully!";
         }
         return "robot number is not true!";
+    }
+
+    @Override
+    public synchronized ResponseData queryAdvice(int userId) {
+        WrapData data = new WrapData();
+        List<Advice> adviceList;
+        try {
+            adviceList = userDao.queryAdviceByUserId(userId);
+        } catch (Exception e) {
+            System.err.println("获取推荐方案出错！");
+            e.printStackTrace();
+            return new ResponseData.Builder()
+                    .setCode(Code.OK.getCode())
+                    .setData(null)
+                    .setMsg(Message.GET_PROGRAMDATA_ERROR.getMessage())
+                    .build();
+        }
+        for (Advice adv : adviceList) {
+            System.err.println(adv.getAdvice());
+            String advice;
+            advice = adv.getAdvice().replaceAll("\\n", "");
+            advice=advice.replace("\\","");
+            adv.setAdvice(advice.trim());
+        }
+        data.setAdviceList(adviceList);
+        return new ResponseData.Builder()
+                .setCode(Code.OK.getCode())
+                .setData(data)
+                .setMsg(Message.GET_PROGRAMDATA_SUCCESS.getMessage())
+                .build();
     }
 }

@@ -1,12 +1,15 @@
 package com.linxu.microapp.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.linxu.microapp.models.Advice;
 import com.linxu.microapp.models.User;
 import lombok.Data;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author linxu
@@ -19,4 +22,5 @@ import org.springframework.stereotype.Service;
 public class WrapData {
     private User user;
     private Integer id;
+    private List<Advice> adviceList;
 }

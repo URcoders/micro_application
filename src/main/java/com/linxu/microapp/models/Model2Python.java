@@ -4,6 +4,8 @@ import com.linxu.microapp.exceptions.IllegalDataException;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+
 /**
  * @author linxu
  * @date 2019/4/5
@@ -49,5 +51,48 @@ public class Model2Python {
             throw new IllegalDataException("数据解析失败，模块数据格式错误~~");
         }
         return reT.toString();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{\"type\":");
+        if (type != null) {
+            stringBuilder.append("\"" + type + "\"" + ",");
+        } else {
+            stringBuilder.append(type + ",");
+        }
+        stringBuilder.append("\"tab\":");
+        if (tab != null) {
+            stringBuilder.append("\"" + tab + "\"" + ",");
+        } else {
+            stringBuilder.append(tab + ",");
+        }
+        stringBuilder.append("\"ops\":");
+        if (ops != null) {
+            stringBuilder.append("\"" + ops + "\"" + ",");
+        } else {
+            stringBuilder.append(ops + ",");
+        }
+        stringBuilder.append("\"condition\":");
+        if (condition != null) {
+            stringBuilder.append("\"" + condition + "\"" + ",");
+        } else {
+            stringBuilder.append(condition + ",");
+        }
+        stringBuilder.append("\"children\":");
+        if (children.length > 0) {
+            stringBuilder.append(Arrays.toString(children) + "}");
+        } else {
+            stringBuilder.append(null+ "}");
+        }
+        return stringBuilder.toString();
+       /* return "{" +
+                "\"type\":\"" + type + '\"' +
+                ", \"tab\":\"" + tab + '\"' +
+                ", \"ops\":\"" + ops + '\"' +
+                ", \"condition\":\"" + condition + '\"' +
+                ", \"children\":" + Arrays.toString(children) +
+                '}';*/
     }
 }

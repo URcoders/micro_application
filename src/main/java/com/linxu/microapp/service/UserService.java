@@ -16,9 +16,17 @@ public interface UserService {
 
     ResponseData relateUserAndRobot(int userId, String robotNumber, String robotType) ;
 
-    ResponseData commitProgram(int userId,String programData);
+    ResponseData commitProgram(int userId,String programData,String moduleDataStorage);
 
     String flushProgramData(String robotNumber);
 
+    ResponseData queryAdvice(int userId);
+
+    public static void main(String[] args) {
+        //test
+        String a="\\"+"\"type";
+        System.err.println(a);
+        System.out.println(a.replaceAll("\\\\\"","123"));
+    }
 
 }
