@@ -13,10 +13,7 @@ import com.linxu.microapp.dtos.WrapData;
 import com.linxu.microapp.enums.Code;
 import com.linxu.microapp.enums.Message;
 import com.linxu.microapp.exceptions.DaoException;
-import com.linxu.microapp.models.Advice;
-import com.linxu.microapp.models.Behaviors;
-import com.linxu.microapp.models.Robot;
-import com.linxu.microapp.models.User;
+import com.linxu.microapp.models.*;
 import com.linxu.microapp.service.UserService;
 import com.linxu.microapp.utils.FileUtil;
 import org.apache.commons.io.FileUtils;
@@ -30,6 +27,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -253,32 +251,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public synchronized ResponseData queryAdvice(int userId) {
-        WrapData data = new WrapData();
-        List<Advice> adviceList;
+    public synchronized String queryAdvice(int userId) {
+        List<Advice> adviceList = new LinkedList<>();
         try {
-            adviceList = userDao.queryAdviceByUserId(userId);
+            for (int i : userDao.queryAdviceIdByUserId(userId)) {
+                if (i != 0)
+                    adviceList.add(userDao.queryAdviceByAdviceId(i));
+            }
         } catch (Exception e) {
             System.err.println("获取推荐方案出错！");
             e.printStackTrace();
-            return new ResponseData.Builder()
-                    .setCode(Code.OK.getCode())
-                    .setData(null)
-                    .setMsg(Message.GET_PROGRAMDATA_ERROR.getMessage())
-                    .build();
+            return null;
         }
         for (Advice adv : adviceList) {
-            System.err.println(adv.getAdvice());
             String advice;
             advice = adv.getAdvice().replaceAll("\\n", "");
-            advice=advice.replace("\\","");
+            advice = advice.replace("\\", "");
             adv.setAdvice(advice.trim());
         }
-        data.setAdviceList(adviceList);
-        return new ResponseData.Builder()
-                .setCode(Code.OK.getCode())
-                .setData(data)
-                .setMsg(Message.GET_PROGRAMDATA_SUCCESS.getMessage())
-                .build();
+        return Model2Python.buildProgramingAdviceData(adviceList);
     }
 }

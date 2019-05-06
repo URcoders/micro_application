@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author linxu
@@ -84,7 +85,7 @@ public class Model2Python {
         if (children.length > 0) {
             stringBuilder.append(Arrays.toString(children) + "}");
         } else {
-            stringBuilder.append(null+ "}");
+            stringBuilder.append(null + "}");
         }
         return stringBuilder.toString();
        /* return "{" +
@@ -94,5 +95,26 @@ public class Model2Python {
                 ", \"condition\":\"" + condition + '\"' +
                 ", \"children\":" + Arrays.toString(children) +
                 '}';*/
+    }
+
+    public static String buildProgramingAdviceData(List<Advice> adviceList) {
+        StringBuilder sb = new StringBuilder();
+        boolean flag = false;
+        sb.append("{ \" " + "adviceList\":[");
+        for (Advice advice : adviceList) {
+            sb.append("{\"avgs\":" + "\"" + advice.getAvgs() + "\",");
+            //可能查出空字符
+            if (advice.getAdvice() != null&&!"".equals(advice.getAdvice()))
+                sb.append("\"advice\":" + advice.getAdvice() + "},");
+            else
+                sb.append("\"advice\":" + "null" + "},");
+            flag = true;
+        }
+        if (flag) {
+            int index = sb.lastIndexOf(",");
+            sb.deleteCharAt(index);
+        }
+        sb.append("]}");
+        return sb.toString();
     }
 }

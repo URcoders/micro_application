@@ -3,6 +3,8 @@ package com.linxu.microapp.service;
 import com.linxu.microapp.dtos.ResponseData;
 import com.linxu.microapp.models.User;
 
+import java.util.List;
+
 /**
  * @author linxu
  * @date 2019/4/26
@@ -20,7 +22,7 @@ public interface UserService {
 
     String flushProgramData(String robotNumber);
 
-    ResponseData queryAdvice(int userId);
+    String queryAdvice(int userId);
 
     public static void main(String[] args) {
         //test

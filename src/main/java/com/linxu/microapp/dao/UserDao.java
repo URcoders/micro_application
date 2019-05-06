@@ -45,7 +45,9 @@ public interface UserDao {
     @Insert("INSERT INTO user_behaviors (user_id,behaviors_id) VALUES(#{user_id},#{b_id})")
     int relateUserAndProgramBehaviors(@Param("user_id")int userId,@Param("b_id")int behaviorsId);
     /******************user_advice****************************/
-    @Select("SELECT * FROM pro_advice WHERE id= (SELECT advice_id FROM user_advice WHERE user_id=#{uid});")
-    List<Advice> queryAdviceByUserId(@Param("uid") int userId);
+    @Select("SELECT * FROM pro_advice WHERE id= #{adviceId}")
+    Advice queryAdviceByAdviceId(@Param("adviceId") int adviceId);
+    @Select("SELECT advice_id FROM user_advice WHERE user_id=#{uid};")
+    List<Integer> queryAdviceIdByUserId(@Param("uid") int userId);
 
 }

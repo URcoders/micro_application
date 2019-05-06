@@ -54,7 +54,7 @@ public class UserController {
     /*********program***************************/
     @PostMapping("/program")
     public ResponseData commitProgram(@RequestBody RequestData requestData) {
-        String storageProgramData=requestData.getProgram().toString();
+        String storageProgramData = requestData.getProgram().toString();
         String data;
         try {
             data = Model2Python.resolve(requestData.getProgram());
@@ -68,7 +68,7 @@ public class UserController {
                     .build();
 
         }
-        return userService.commitProgram(requestData.getId(), data,storageProgramData);
+        return userService.commitProgram(requestData.getId(), data, storageProgramData);
     }
 
     @GetMapping("/flush")
@@ -77,15 +77,11 @@ public class UserController {
     }
 
     @GetMapping(value = "/queryAdvice")
-    public ResponseData queryAdvice(@RequestParam("id") String uid){
+    public String queryAdvice(@RequestParam("id") String uid) {
         try {
             return userService.queryAdvice(Integer.valueOf(uid));
         } catch (NumberFormatException e) {
-            return new ResponseData.Builder()
-                    .setCode(Code.OK.getCode())
-                    .setData(null)
-                    .setMsg(Message.WEB_DATA_ERROR.getMessage())
-                    .build();
+            return Message.WEB_DATA_ERROR.getMessage();
         }
     }
 }
