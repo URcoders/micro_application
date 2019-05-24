@@ -1,6 +1,7 @@
 package com.linxu.microapp.service;
 
 import com.linxu.microapp.dtos.ResponseData;
+import com.linxu.microapp.models.Counter;
 import com.linxu.microapp.models.User;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface UserService {
 
     ResponseData relateUserAndRobot(int userId, String robotNumber, String robotType) ;
 
-    ResponseData commitProgram(int userId,String programData,String moduleDataStorage);
+    ResponseData commitProgram(int userId, String programData, String moduleDataStorage, Counter counter);
 
     String flushProgramData(String robotNumber);
 

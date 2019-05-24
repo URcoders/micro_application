@@ -3,6 +3,8 @@ package com.linxu.microapp.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -21,4 +23,8 @@ public class User {
     private String userName;
     private String password;
     private String name;
+
+    public static void main(String[] args) {
+        System.out.println(new User());
+    }
 }

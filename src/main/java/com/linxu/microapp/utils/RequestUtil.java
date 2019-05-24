@@ -39,4 +39,12 @@ public class RequestUtil {
         }
         return null;
     }
+    public static boolean requestPredicate(int userId,int programId){
+        String url="http://localhost:5000/"+"addprogram/"+userId+"/"+programId;
+        ResponseEntity<String> responseEntity=restTemplate.exchange(url,HttpMethod.GET,null,String.class);
+        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+        return false;
+    }
 }

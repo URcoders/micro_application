@@ -16,6 +16,7 @@ import com.linxu.microapp.exceptions.DaoException;
 import com.linxu.microapp.models.*;
 import com.linxu.microapp.service.UserService;
 import com.linxu.microapp.utils.FileUtil;
+import com.linxu.microapp.utils.RequestUtil;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -182,7 +183,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseData commitProgram(int userId, String programData, String moduleDataStorage) {
+    public ResponseData commitProgram(int userId, String programData, String moduleDataStorage, Counter counter) {
         File file = new File("./" + userId + "-temp.py");
         int robotIdIfExist;
         try {
@@ -205,8 +206,16 @@ public class UserServiceImpl implements UserService {
                 //会返回ID
                 behaviorsDao.addBehaviors(behaviors);
                 userDao.relateUserAndProgramBehaviors(userId, behaviors.getId());
+                counter.setId(behaviors.getId());
+                userDao.addActionData(counter);
+                userDao.addRelation(userId, counter.getId());
+                //请求数据挖掘，尽早推荐
+                System.err.println(RequestUtil.requestPredicate(userId,counter.getId()));
             } catch (IOException e) {
                 e.printStackTrace();
+            }finally {
+                //help GC
+                counter=null;
             }
             return new ResponseData.Builder()
                     .setCode(Code.OK.getCode())
@@ -252,22 +261,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public synchronized String queryAdvice(int userId) {
-        List<Advice> adviceList = new LinkedList<>();
+        List<Behaviors> adviceList;
         try {
-            for (int i : userDao.queryAdviceIdByUserId(userId)) {
-                if (i != 0)
-                    adviceList.add(userDao.queryAdviceByAdviceId(i));
-            }
+            adviceList = userDao.queryAdviceIdByUserId(userId);
         } catch (Exception e) {
             System.err.println("获取推荐方案出错！");
             e.printStackTrace();
             return null;
         }
-        for (Advice adv : adviceList) {
+        for (Behaviors adv : adviceList) {
             String advice;
-            advice = adv.getAdvice().replaceAll("\\n", "");
+            advice = adv.getBehaviors().replaceAll("\\n", "");
             advice = advice.replace("\\", "");
-            adv.setAdvice(advice.trim());
+            adv.setBehaviors(advice.trim());
         }
         return Model2Python.buildProgramingAdviceData(adviceList);
     }

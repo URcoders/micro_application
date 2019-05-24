@@ -6,6 +6,7 @@ import com.linxu.microapp.dtos.ResponseData;
 import com.linxu.microapp.enums.Code;
 import com.linxu.microapp.enums.Message;
 import com.linxu.microapp.exceptions.IllegalDataException;
+import com.linxu.microapp.models.Counter;
 import com.linxu.microapp.models.Model2Python;
 import com.linxu.microapp.models.Robot;
 import com.linxu.microapp.models.User;
@@ -55,9 +56,10 @@ public class UserController {
     @PostMapping("/program")
     public ResponseData commitProgram(@RequestBody RequestData requestData) {
         String storageProgramData = requestData.getProgram().toString();
-        String data;
+        String data="from action import *\n"+"arm_init()\n";
+        Counter counter=new Counter();
         try {
-            data = Model2Python.resolve(requestData.getProgram());
+            data += Model2Python.resolve(requestData.getProgram(),counter);
         } catch (IllegalDataException e) {
             e.printStackTrace();
             System.err.println("前端数据格式错误！");
@@ -68,7 +70,7 @@ public class UserController {
                     .build();
 
         }
-        return userService.commitProgram(requestData.getId(), data, storageProgramData);
+        return userService.commitProgram(requestData.getId(), data, storageProgramData,counter);
     }
 
     @GetMapping("/flush")

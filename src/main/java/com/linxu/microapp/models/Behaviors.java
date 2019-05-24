@@ -16,4 +16,5 @@ import org.springframework.stereotype.Service;
 public class Behaviors {
     private int id;
     private String behaviors;
+    private Double weight;
 }
